@@ -242,7 +242,9 @@ namespace tools {
 #include <iostream>
 
 using namespace tools;
-
+/*
+ * Test application, you can keep it logic via the .txt configuration
+ */
 int main(int argc, char **argv) {
 	double df = -1;
 	InitPY();
