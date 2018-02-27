@@ -12,28 +12,36 @@
 #include <string>
 #include <tuple>
 
-namespace tools {
+namespace tools 
+{
 	typedef unsigned short uint16;
 
 	template<class T>
-	class Words : public std::vector<std::shared_ptr<T> > { 
+	class Words : public std::vector<std::shared_ptr<T> > 
+        { 
 		static bool Less1(const std::shared_ptr<T>& t1
-			, const std::shared_ptr<T>& t2) {
+			, const std::shared_ptr<T>& t2) 
+                {
 			return t1->_gbkValue < t2->_gbkValue;
 		}
-		static bool Less2(const std::shared_ptr<T>& t1, uint16 gbkValue) {
+		static bool Less2(const std::shared_ptr<T>& t1, uint16 gbkValue) 
+		{
 			return t1->_gbkValue < gbkValue;
 		}
 
 	public:
-		void Sort() {
+		void Sort() 
+		{
 			std::sort(this->begin(), this->end(), Less1);
 		}
 
-		std::shared_ptr<T> FindItemByGbkValue(uint16 value) {
+		std::shared_ptr<T> FindItemByGbkValue(uint16 value) 
+		{
 			auto iter = std::lower_bound(this->begin(), this->end(), value, Less2);
-			if (iter != this->end()) {
-				if ((*iter)->_gbkValue == value) {
+			if (iter != this->end()) 
+			{
+				if ((*iter)->_gbkValue == value) 
+				{
 					return *iter;
 				}
 			}
@@ -43,7 +51,8 @@ namespace tools {
 	};
 
 	/* Word with different pronunciations */
-	class Word {
+	class Word 
+	{
 	public:
 		uint16 _gbkValue;
 		std::vector<char> _pys;
@@ -55,7 +64,8 @@ namespace tools {
 
 
 	/* Normal GBK word */
-	bool CheckGBKWordTable(uint16 tmp, char& result) {
+	bool CheckGBKWordTable(uint16 tmp, char& result) 
+	{
 		if (tmp >= 45217 && tmp <= 45252) result = ('A');
 		else if (tmp >= 45253 && tmp <= 45760) result = ('B');
 		else if (tmp >= 45761 && tmp <= 46317) result = ('C');
@@ -84,23 +94,28 @@ namespace tools {
 	}
 
 
-	const std::vector<char>& GetPys(unsigned char i1, unsigned char i2, bool& isPoly) {
+	const std::vector<char>& GetPys(unsigned char i1, unsigned char i2, bool& isPoly) 
+	{
 		unsigned int tmp = i1 * 256 + i2;
 		isPoly = false;
 		//polyphonic
 		auto ptrToWord = __polyPronuWords.FindItemByGbkValue(tmp);
-		if (ptrToWord != nullptr) {
+		if (ptrToWord != nullptr) 
+		{
 			isPoly = true;
 			return ptrToWord->_pys;
 		}
 		static std::vector<char> tmpVec;
 		tmpVec.clear();
 		// GBK rule
-		if (i2 >= 0xa1) { //GB2312 second byte >= 0xa1
-			if (i1 == 0xa2) { //´¦Àí ¢× ÀàĞÍµÄÊı×Ö·ûºÅ
-				if ((i2 >= 0xc5) && (i2 <= 0xcd)) // ¢Å--->¢Í
+		if (i2 >= 0xa1) 
+		{ //GB2312 second byte >= 0xa1
+			if (i1 == 0xa2) 
+			{ //å¤„ç† â’† ç±»å‹çš„æ•°å­—ç¬¦å·
+				if ((i2 >= 0xc5) && (i2 <= 0xcd)) // â‘´--->â‘¼
 					tmpVec.push_back((i2 - 0xc5) + '1');
-				else if ((i2 >= 0xce) && (i2 <= 0xd8)) { // ¢Î-->¢Ø
+				else if ((i2 >= 0xce) && (i2 <= 0xd8)) 
+				{ // â‘½-->â’‡
 					int iTemp = i2 - 0xce + 10;
 					char szPY[3];
                     sprintf(szPY, "%d", iTemp);
@@ -109,7 +124,8 @@ namespace tools {
 					tmpVec.push_back(szPY[1]);
 				}
 			}
-			else if (i1 == 0xa3) { //Full symbol
+			else if (i1 == 0xa3) 
+			{ //Full symbol
 
 				if ((i2 >= 0xb0) && (i2 <= 0xb9))
 					tmpVec.push_back((i2 - 0xb0) + '0');
@@ -118,18 +134,22 @@ namespace tools {
 				else if ((i2 >= 0xe1) && (i2 <= 0xfa))
 					tmpVec.push_back((i2 - 0xe1) + 'A');
 			}
-			else if (i1 >= 0xb0) { // GBK first byte >= 0xb0
+			else if (i1 >= 0xb0) 
+			{ // GBK first byte >= 0xb0
 				char result;
-				if (CheckGBKWordTable(tmp, result)) {
+				if (CheckGBKWordTable(tmp, result)) 
+				{
 					tmpVec.push_back(result);
 				}
 			}
 		}
 
 		// uncommon word handle
-		if (tmpVec.size() <= 0) { 
+		if (tmpVec.size() <= 0) 
+		{ 
 			auto ptrToWord = __raredUsedWords.FindItemByGbkValue(tmp);
-			if (ptrToWord != nullptr) {
+			if (ptrToWord != nullptr) 
+			{
 				return ptrToWord->_pys;
 			}
 
@@ -140,8 +160,10 @@ namespace tools {
 
 	/* List result for ... */
 	void ListResult(std::vector< std::tuple<bool, std::vector<char> > >& vecs
-		, std::vector<std::string>& result, int start, char* tmp, int index) {
-		if (start == vecs.size()) {
+		, std::vector<std::string>& result, int start, char* tmp, int index) 
+	{
+		if (start == vecs.size()) 
+		{
 			result.push_back(tmp);
 			return;
 		}
@@ -149,32 +171,40 @@ namespace tools {
 		auto& s = vecs[start];
 		auto ispoly = std::get<0>(s);
 		auto& s2 = std::get<1>(s);
-		if (!ispoly) {
+		if (!ispoly) 
+		{
 			memcpy(tmp + index, &s2[0], s2.size());
 			ListResult(vecs, result, start + 1, tmp, index + s2.size());
 		}
-		else {
-			for (unsigned int j = 0; j < s2.size(); ++j) {
+		else 
+		{
+			for (unsigned int j = 0; j < s2.size(); ++j) 
+			{
 				tmp[index] = s2[j];
 				ListResult(vecs, result, start + 1, tmp, index + 1);
 			} //Password
 		}
 	}
 
-	bool GetPyString(std::vector<char>& in, std::vector<std::string>& result) {
+	bool GetPyString(std::vector<char>& in, std::vector<std::string>& result) 
+	{
 
 		std::vector< std::tuple<bool, std::vector<char> > > vecs;
 
-		for (unsigned int i = 0; i < in.size(); i++) {
-			if ((unsigned char)(in[i]) >= 0x80) {
+		for (unsigned int i = 0; i < in.size(); i++) 
+		{
+			if ((unsigned char)(in[i]) >= 0x80) 
+			{
 				bool isPoly = false;
 				auto pyVec = GetPys(in[i], in[i + 1], isPoly);
 				i++;
 				if(!pyVec.empty())
 					vecs.push_back(std::make_tuple(isPoly, pyVec));
 			}
-			else {
-				if ((in[i] != ' ') && (in[i] != '-')) { //del' '
+			else 
+			{
+				if ((in[i] != ' ') && (in[i] != '-')) 
+				{ //del' '
 					std::vector<char> tmpVec;
 					tmpVec.push_back(in[i]);
 					vecs.push_back(std::make_tuple(false, tmpVec));
@@ -182,12 +212,15 @@ namespace tools {
 			}
 		}
 
-		if (vecs.size() > 0) {
+		if (vecs.size() > 0) 
+		{
 			char tmp[20] = { '\0' };
 			ListResult(vecs, result, 0, tmp, 0);
-			for (unsigned int i = 0; i < result.size(); ++i ) {
+			for (unsigned int i = 0; i < result.size(); ++i ) 
+			{
 				auto v = result[i];
-				if (v.length() > 1 && v[0] == '*') {
+				if (v.length() > 1 && v[0] == '*') 
+				{
 					result.push_back(v.c_str() + 1);
 				}
 			}
@@ -195,13 +228,16 @@ namespace tools {
 		return true;
 	}
 
-	void InitPY() {
+	void InitPY() 
+	{
 		FILE* hFile = fopen("uncommon.txt", "rt"); // uncommon used words
 		char szBuff[512];
 		char* lpBuff = NULL;
-		if (hFile) {
+		if (hFile) 
+		{
 			lpBuff = fgets(szBuff, 512, hFile);
-			while (lpBuff) {
+			while (lpBuff) 
+			{
 				int i1 = (unsigned char)lpBuff[0];
 				int i2 = (unsigned char)lpBuff[1];
 				auto word = std::make_shared<Word>();
@@ -215,9 +251,11 @@ namespace tools {
 		__raredUsedWords.Sort();
 
 		hFile = fopen("polyphonic.txt", "rt"); // polyphonic
-		if (hFile) {
+		if (hFile) 
+		{
 			lpBuff = fgets(szBuff, 512, hFile);
-			while (lpBuff) {
+			while (lpBuff) 
+			{
 				int i1 = (unsigned char)lpBuff[0];
 				int i2 = (unsigned char)lpBuff[1];
 				auto word = std::make_shared<Word>();
@@ -227,7 +265,8 @@ namespace tools {
 					lpBuff[iStrLen - 1] = '\0';
 				int iPYs = strlen(lpBuff) - 2;
 				iPYs /= 2;
-				for (int i = 0; i < iPYs; i++) {
+				for (int i = 0; i < iPYs; i++) 
+				{
 					word->_pys.push_back(lpBuff[3 + i * 2]);
 				}
 				__polyPronuWords.push_back(word);
@@ -245,41 +284,47 @@ using namespace tools;
 /*
  * Test application, you can keep it logic via the .txt configuration
  */
-int main(int argc, char **argv) {
+int main(int argc, char **argv) 
+{
 	double df = -1;
 	InitPY();
 
 	std::vector<std::string> result;
-	std::string strs[]{ "DR³¤Ô°¼¯","³¤Ô°¼¯ÍÅ","îã" ,"ÀÖãğÙñ","Íò ¿ÆA" ,"14½õ•PÕ®","ÖØÙñãğÏÃ"
-	,"³¤Ô°¼¯ÍÅ","PRÙñÖİÕ®" ,"¹¤ÖØÒøĞĞ","ÈıöÎÒ½ÁÆ" ,"³¤1¼¯ÍÅ","*STĞÂÒÚ","*ÙñãğÏÃ","²âÊÔ–¡ô" };
+	std::string strs[]{ "DRé•¿å›­é›†","é•¿å›­é›†å›¢","é’½" ,"ä¹æ²­äº³","ä¸‡ ç§‘A" ,"14é”¦æ˜‰å€º","é‡äº³æ²­å¦"
+	,"é•¿å›­é›†å›¢","PRäº³å·å€º" ,"å·¥é‡é“¶è¡Œ","ä¸‰é‘«åŒ»ç–—" ,"é•¿1é›†å›¢","*STæ–°äº¿","*äº³æ²­å¦","æµ‹è¯•æ®â—†" };
 	
 	{
-		std::string str = "*ÙñÖİÕ®";
+		std::string str = "*äº³å·å€º";
 		std::vector<std::string> result;
 		std::vector<char> src;
-		for (unsigned int j = 0; j < str.length(); ++j) {
+		for (unsigned int j = 0; j < str.length(); ++j) 
+		{
 			src.push_back(str[j]);
 		}
 		GetPyString(src, result);
 
 		std::cout << str << "" << "" << std::endl;
-		for (unsigned int j = 0; j < result.size(); ++j) {
+		for (unsigned int j = 0; j < result.size(); ++j) 
+		{
 			std::cout << result[j].c_str() << std::endl;
 		}
 
 		std::cout << std::endl;
 	}
 
-	for (int i = 0; i < 15; ++i) {
+	for (int i = 0; i < 15; ++i) 
+	{
 		std::vector<std::string> result;
 		std::vector<char> src;
-		for (unsigned int j = 0; j < strs[i].length(); ++j) {
+		for (unsigned int j = 0; j < strs[i].length(); ++j) 
+		{
 			src.push_back(strs[i][j]);
 		}
 		GetPyString(src, result);
 
 		std::cout << strs[i] << "" << "" << std::endl;
-		for (unsigned int j = 0; j < result.size(); ++j) {
+		for (unsigned int j = 0; j < result.size(); ++j) 
+		{
 			std::cout << result[j].c_str() << std::endl;
 		}
 
